@@ -1,0 +1,338 @@
+-- UI
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local Window = Fluent:CreateWindow({
+    Title = "Run For Brainrots Script ⭐",
+    SubTitle = "By T-chni Hub",
+    TabWidth = 140,
+    Size = UDim2.fromOffset(500, 350),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "main" }),
+    Teleport = Window:AddTab({ Title = "Teleport", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local Options = Fluent.Options
+
+-- SERVICES
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- =====================
+-- ZONE OFFSETS
+-- =====================
+
+local ZoneOffsets = {
+    Common = 130,
+    Uncommon = 200,
+    Rare = 230,
+    Epic = 270,
+    Legendary = 300,
+    Mythical = 360,
+    Secret = 420,
+    Celestial = 460,
+    Divine = 600
+}
+
+-- ลำดับปุ่มวาป
+local TeleportOrder = {
+    "Common",
+    "Uncommon",
+    "Rare",
+    "Epic",
+    "Legendary",
+    "Mythical",
+    "Secret",
+    "Celestial",
+    "Divine"
+}
+
+-- =====================
+-- TELEPORT BASE
+-- =====================
+
+local function teleportBase()
+
+    local plotName = "Plot_"..player.Name
+    local plot = workspace:FindFirstChild(plotName,true)
+
+    if plot then
+        
+        local pos
+        
+        if plot:IsA("Model") then
+            pos = plot:GetModelCFrame().Position
+        elseif plot:IsA("BasePart") then
+            pos = plot.Position
+        end
+        
+        if pos then
+            
+            local char = player.Character or player.CharacterAdded:Wait()
+            local hrp = char:WaitForChild("HumanoidRootPart")
+
+            hrp.CFrame = CFrame.new(pos + Vector3.new(0,20,0))
+            
+        end
+        
+    end
+
+end
+
+-- =====================
+-- TELEPORT ZONE
+-- =====================
+
+local function teleport(zoneName)
+
+    local zone = workspace:FindFirstChild(zoneName,true)
+
+    if zone then
+        
+        local pos
+        
+        if zone:IsA("Model") then
+            pos = zone:GetModelCFrame().Position
+        elseif zone:IsA("BasePart") then
+            pos = zone.Position
+        end
+        
+        if pos then
+            
+            local offset = ZoneOffsets[zoneName] or 130
+            
+            local char = player.Character or player.CharacterAdded:Wait()
+            local hrp = char:WaitForChild("HumanoidRootPart")
+
+            hrp.CFrame = CFrame.new(pos + Vector3.new(0,20,offset))
+            
+        end
+        
+    end
+
+end
+
+-- =====================
+-- AUTO RETURN
+-- =====================
+
+local AutoReturn = true
+
+Tabs.Main:AddToggle("AutoReturn",{
+Title = "Auto Return Base",
+Default = true
+})
+
+Options.AutoReturn:OnChanged(function(v)
+AutoReturn = v
+end)
+
+task.spawn(function()
+
+while true do
+task.wait(0.4)
+
+if AutoReturn then
+    
+    local char = player.Character
+    
+    if char then
+        local carry = char:FindFirstChild("CarryVisuals")
+        
+        if carry then
+            teleport("Common")
+            task.wait(0.5)
+            teleportBase()
+        end
+    end
+    
+end
+
+end
+
+end)
+
+-- =====================
+-- AUTO FARM
+-- =====================
+
+local SelectedFarm = "Common"
+local AutoFarm = false
+
+Tabs.Main:AddDropdown("FarmLevel",{
+Title = "Farm Level",
+Values = TeleportOrder,
+Multi = false,
+Default = 1
+})
+
+Options.FarmLevel:OnChanged(function(v)
+SelectedFarm = v
+end)
+
+Tabs.Main:AddToggle("AutoFarmToggle",{
+Title = "Auto Farm",
+Default = false
+})
+
+Options.AutoFarmToggle:OnChanged(function(v)
+AutoFarm = v
+end)
+
+task.spawn(function()
+
+while true do
+task.wait(0.6)
+
+if AutoFarm then
+
+    teleport(SelectedFarm)
+
+    task.wait(2)
+
+    local spawner = workspace:FindFirstChild("ItemSpawners")
+
+    if spawner then
+        
+        local zone = spawner:FindFirstChild(SelectedFarm)
+
+        if zone then
+
+            local items = zone:GetChildren()
+
+            if #items == 0 then
+                task.wait(2)
+                continue
+            end
+
+            for _,item in pairs(items) do
+
+                if not AutoFarm then break end
+
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+                if hrp then
+
+                    local part = item:FindFirstChildWhichIsA("BasePart")
+
+                    if part then
+                        
+                        hrp.CFrame = part.CFrame + Vector3.new(0,3,0)
+                        task.wait(0.4)
+
+                        local prompt = item:FindFirstChildWhichIsA("ProximityPrompt",true)
+
+                        if prompt then
+                            fireproximityprompt(prompt)
+                            task.wait(0.7)
+                        end
+
+                    end
+
+                end
+
+            end
+
+        end
+
+    end
+
+end
+
+end
+
+end)
+
+-- =====================
+-- TELEPORT BUTTONS
+-- =====================
+
+Tabs.Teleport:AddButton({
+Title="Teleport My Base",
+Callback=function()
+teleportBase()
+end
+})
+
+for _,zone in ipairs(TeleportOrder) do
+
+Tabs.Teleport:AddButton({
+Title = zone,
+Callback = function()
+teleport(zone)
+end
+})
+
+end
+
+-- =====================
+-- SETTINGS SYSTEM
+-- =====================
+
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+
+SaveManager:IgnoreThemeSettings()
+
+InterfaceManager:SetFolder("BrainrotHub")
+SaveManager:SetFolder("BrainrotHub/Game")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+Window:SelectTab(1)
+
+Fluent:Notify({
+Title="Run For Brainrots Script",
+Content="Loaded Successfully",
+Duration=6
+})
+
+SaveManager:LoadAutoloadConfig()
+
+-- =====================
+-- MOBILE BUTTON
+-- =====================
+
+pcall(function()
+game.CoreGui:FindFirstChild("FluentMobileButton"):Destroy()
+end)
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "FluentMobileButton"
+gui.ResetOnSpawn = false
+gui.Parent = game.CoreGui
+
+local btn = Instance.new("TextButton")
+btn.Size = UDim2.fromOffset(75,50)
+btn.Position = UDim2.new(0,15,0.5,-90)
+btn.BackgroundColor3 = Color3.fromRGB(0,0,100)
+btn.Text = "UI"
+btn.TextScaled = true
+btn.TextColor3 = Color3.new(1,1,1)
+btn.Active = true
+btn.Draggable = true
+btn.Parent = gui
+
+Instance.new("UICorner", btn).CornerRadius = UDim.new(0.5,0)
+
+btn.MouseButton1Click:Connect(function()
+Window:Minimize()
+end)
+
+task.spawn(function()
+while task.wait(1) do
+if Fluent.Unloaded then
+gui:Destroy()
+break
+end
+end
+end)
