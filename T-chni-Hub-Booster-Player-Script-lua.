@@ -1,7 +1,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "✨T-chni Hub✨ | Booster Player Script ⭐",
+   Name = "✨T-chni Hub✨ | Booster Player Script |V 1.1| ⭐",
    Icon = 0,
    LoadingTitle = "💯Systems Synchronizing...",
    LoadingSubtitle = "by ✨T-chni Hub✨",
