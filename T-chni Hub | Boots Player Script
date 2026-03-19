@@ -1,0 +1,212 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "✨T-chni Hub✨ | Boots Player Script ⭐",
+   Icon = 0,
+   LoadingTitle = "💯Systems Synchronizing...",
+   LoadingSubtitle = "by ✨T-chni Hub✨",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "T-chni UltimateConfig",
+      FileName = "MainConfig"
+   },
+   KeySystem = false
+})
+
+-- [[ GLOBAL VARIABLES ]]
+_G.WalkSpeedEnabled = false
+_G.CustomSpeed = 16
+_G.JumpPowerEnabled = false
+_G.CustomJump = 50
+_G.InfiniteJumpEnabled = false
+_G.ESPEnabled = false
+
+-- เก็บค่าเริ่มต้นของตัวละครไว้ (Reset Values)
+local lastDefaultSpeed = 16
+local lastDefaultJump = 50
+
+local function SaveDefaults()
+    local char = game.Players.LocalPlayer.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        -- บันทึกค่าที่เซิร์ฟเวอร์หรือเกมตั้งมาให้ตอนแรก
+        lastDefaultSpeed = hum.WalkSpeed
+        lastDefaultJump = hum.JumpPower
+    end
+end
+SaveDefaults()
+
+-- ==========================================
+-- TAB 1: MOVEMENT CONTROL
+-- ==========================================
+local MoveTab = Window:CreateTab("Movement", 4483362458)
+
+MoveTab:CreateSection("🏃 WalkSpeed Settings | การตั้งค่า Walkspeed")
+MoveTab:CreateParagraph({
+    Title = "Info Walkspeed | ข้อมูล Walkspeed", 
+    Content = "Walkspeed is This value represents your own speed, and the higher the value, the faster you will be | ค่าความเร็วในการเดินนี้แสดงถึงความเร็วของคุณเอง ยิ่งค่าสูงเท่าไหร่ คุณก็จะยิ่งเดินเร็วขึ้นเท่านั้น"
+})
+MoveTab:CreateInput({
+   Name = "Set WalkSpeed | ตั้งค่า Walkspeed",
+   PlaceholderText = "Default: 16 | ปกติ 16",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text) _G.CustomSpeed = tonumber(Text) or 16 end,
+})
+MoveTab:CreateToggle({
+   Name = "Enable WalkSpeed | ใช้งาน Walkspeed",
+   CurrentValue = false,
+   Flag = "WSToggle",
+   Callback = function(Value) 
+      _G.WalkSpeedEnabled = Value 
+      -- ถ้าปิด ให้รีเซ็ตกลับเป็นค่าเดิมทันที
+      if not Value then
+          local hum = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+          if hum then hum.WalkSpeed = lastDefaultSpeed end
+      end
+   end,
+})
+
+MoveTab:CreateSection("🚀 JumpPower Settings | การตั้งค่า Jumppower")
+MoveTab:CreateParagraph({
+    Title = "Info Jumppower | ข้อมูล Jumppower", 
+    Content = "Your jump value is higher; the higher the value, the higher your jump will be | ค่าการกระโดดของคุณสูงขึ้น ยิ่งค่าสูงเท่าไหร่ การกระโดดของคุณก็จะยิ่งสูงขึ้นเท่านั้น"
+})
+MoveTab:CreateInput({
+   Name = "Set JumpPower | ตั้งค่า Jumppower",
+   PlaceholderText = "Default: 50 | ปกติ 50",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text) _G.CustomJump = tonumber(Text) or 50 end,
+})
+MoveTab:CreateToggle({
+   Name = "Enable Set JumpPower | ใช้งาน ตั้งค่า Jumppower",
+   CurrentValue = false,
+   Flag = "JPToggle",
+   Callback = function(Value) 
+      _G.JumpPowerEnabled = Value 
+      -- ถ้าปิด ให้รีเซ็ตกลับเป็นค่าเดิมทันที
+      if not Value then
+          local hum = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+          if hum then hum.JumpPower = lastDefaultJump end
+      end
+   end,
+})
+
+MoveTab:CreateSection("☁️ Special Movement | การเคลื่อนไหวแบบพิเศษ")
+MoveTab:CreateParagraph({
+    Title = "Info Infinity Jump | ข้อมูล Infinity Jump", 
+    Content = "Infinity Jump is A jump without a stunt | Infinity Jump คือการกระโดดที่ไม่มีการแสดงผาดโผน"
+})
+MoveTab:CreateToggle({
+   Name = "Enable Infinite Jump | ใช้งาน Infinity Jump",
+   CurrentValue = false,
+   Flag = "InfJumpToggle",
+   Callback = function(Value) _G.InfiniteJumpEnabled = Value end,
+})
+
+-- ==========================================
+-- TAB 2: ESP
+-- ==========================================
+local ESPTab = Window:CreateTab("ESP | การมองละทุ", 4483362458)
+ESPTab:CreateParagraph({
+    Title = "Info Esp | ข้อมูล Esp", 
+    Content = "Esp is Visibility of the player | Esp คือ การมองเห็นของผู้เล่น "
+})
+local function ApplyESP(player)
+    player.CharacterAdded:Connect(function(char)
+        if _G.ESPEnabled then
+            task.wait(0.5)
+            local highlight = Instance.new("Highlight")
+            highlight.Name = "GeminiESP"
+            highlight.FillColor = Color3.fromRGB(255, 0, 0)
+            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+            highlight.Parent = char
+        end
+    end)
+    
+    if player.Character and _G.ESPEnabled then
+        local highlight = player.Character:FindFirstChild("GeminiESP") or Instance.new("Highlight")
+        highlight.Name = "GeminiESP"
+        highlight.Parent = player.Character
+    end
+end
+
+ESPTab:CreateToggle({
+   Name = "Enable Player ESP | ใช้งาน Esp",
+   CurrentValue = false,
+   Flag = "ESPToggle",
+   Callback = function(Value)
+      _G.ESPEnabled = Value
+      if Value then
+          for _, player in pairs(game.Players:GetPlayers()) do
+              if player ~= game.Players.LocalPlayer then ApplyESP(player) end
+          end
+      else
+          -- ลบ ESP ออกทันทีเมื่อปิด
+          for _, player in pairs(game.Players:GetPlayers()) do
+              if player.Character and player.Character:FindFirstChild("GeminiESP") then
+                  player.Character.GeminiESP:Destroy()
+              end
+          end
+      end
+   end,
+})
+
+-- ==========================================
+-- BACKEND SYSTEMS
+-- ==========================================
+
+-- 1. Loop บังคับค่า (จะทำงานเฉพาะตอนเปิด Toggle เท่านั้น)
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        pcall(function()
+            local char = game.Players.LocalPlayer.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                if _G.WalkSpeedEnabled then 
+                    hum.WalkSpeed = _G.CustomSpeed 
+                end
+                if _G.JumpPowerEnabled then 
+                    hum.UseJumpPower = true
+                    hum.JumpPower = _G.CustomJump 
+                end
+            end
+        end)
+    end
+end)
+
+-- 2. Infinite Jump
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if _G.InfiniteJumpEnabled then
+        pcall(function()
+            game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+        end)
+    end
+end)
+
+-- 3. ระบบจัดการเมื่อตัวละครเกิดใหม่
+game.Players.LocalPlayer.CharacterAdded:Connect(function(newChar)
+    SaveDefaults() -- บันทึกค่าพื้นฐานใหม่ (เผื่อบางแมพเปลี่ยนค่าตอนเกิด)
+    local hum = newChar:WaitForChild("Humanoid", 5)
+    if hum then
+        task.wait(0.6)
+        if _G.WalkSpeedEnabled then hum.WalkSpeed = _G.CustomSpeed end
+        if _G.JumpPowerEnabled then 
+            hum.UseJumpPower = true
+            hum.JumpPower = _G.CustomJump 
+        end
+    end
+end)
+
+-- 4. ระบบ ESP สำหรับคนเข้าใหม่
+game.Players.PlayerAdded:Connect(function(player)
+    ApplyESP(player)
+end)
+
+Rayfield:Notify({
+   Title = "Hub Synced!",
+   Content = "ระบบรีเซ็ตค่าเดิมพร้อมใช้งานแล้ว",
+   Duration = 5,
+   Image = 4483362458,
+})
+------------------------------
