@@ -130,6 +130,6 @@ task.spawn(function()
     end
 end)
 
-win:AddLabel({ text = "Script By : T-chni Hub" })
+win:AddLabel({ text = "Script By : T-chni Hub V.1.5" })
 
 library:Init()
