@@ -15,7 +15,7 @@ local TeleportOrder = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Myth
 
 local AutoReturn = false
 local AutoFarm = false
-local AntiAFK = false -- ตัวแปรสำหรับสวิตช์ Anti-AFK
+local AntiAFK = false 
 local SelectedFarm = "Common"
 local SelectedTeleportZone = "Common"
 
@@ -43,7 +43,6 @@ local function teleport(zoneName)
     end
 end
 
--- ระบบ Anti-AFK Connection
 player.Idled:Connect(function()
     if AntiAFK then
         VirtualUser:CaptureController()
@@ -70,7 +69,6 @@ tpFolder:AddButton({ text = "Teleport to Selected", callback = function() telepo
 -- [ Folder: Settings ]
 local settingsFolder = win:AddFolder("Settings")
 
--- 1) Anti-AFK (เปลี่ยนเป็นสวิตช์ Toggle)
 settingsFolder:AddToggle({
     text = "Anti-AFK",
     flag = "anti_afk",
@@ -81,7 +79,6 @@ settingsFolder:AddToggle({
     end
 })
 
--- 2) Rejoin & Server Hop (ยังเป็นปุ่มเหมือนเดิม)
 settingsFolder:AddButton({ text = "Rejoin Server", callback = function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, player) end })
 settingsFolder:AddButton({ text = "Server Hop", callback = function()
     local servers = {}
@@ -90,7 +87,7 @@ settingsFolder:AddButton({ text = "Server Hop", callback = function()
     if #servers > 0 then TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], player) end
 end})
 
-settingsFolder:AddSlider({ text = "FOV", min = 70, max = 120, callback = function(v) workspace.CurrentCamera.FieldOfView = v end })
+settingsFolder:AddSlider({ text = "FOV", min = 30, max = 120, callback = function(v) workspace.CurrentCamera.FieldOfView = v end })
 
 -- =====================
 -- LOOPS (AUTO FARM LOGIC)
