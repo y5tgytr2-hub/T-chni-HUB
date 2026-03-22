@@ -1,4 +1,4 @@
--- [[ Tora UI | Run For Brainrots - Anti-AFK Switch Update ]]
+-- [[ Tora UI | Run For Brainrots
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/liebertsx/Tora-Library/main/src/librarynew",true))()
 local win = library:CreateWindow("Run For Brainrots💯")
 
