@@ -16,12 +16,35 @@ local TeleportOrder = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Myth
 local AutoReturn = false
 local AutoFarm = false
 local AntiAFK = false 
+local AutoCollectMoney = false
+local CollectDelay = 1
 local SelectedFarm = "Common"
 local SelectedTeleportZone = "Common"
 
 -- =====================
 -- FUNCTIONS (CORE)
 -- =====================
+local function collectAllMoney()
+    local plotName = "Plot_"..player.Name
+    local plot = workspace:FindFirstChild(plotName, true)
+    
+    if plot then
+        for f = 1, 3 do 
+            local floor = plot:FindFirstChild("Floor"..f)
+            if floor and floor:FindFirstChild("Slots") then
+                for s = 1, 10 do
+                    local slot = floor.Slots:FindFirstChild("Slot"..s)
+                    if slot and slot:FindFirstChild("CollectTouch") then
+                        local touchPart = slot.CollectTouch
+                        firetouchinterest(player.Character.HumanoidRootPart, touchPart, 0)
+                        task.wait()
+                        firetouchinterest(player.Character.HumanoidRootPart, touchPart, 1)
+                    end
+                end
+            end
+        end
+    end
+end
 
 local function teleportBase()
     local plotName = "Plot_"..player.Name
@@ -56,6 +79,35 @@ end)
 
 -- [ Folder: Auto Farm ]
 local farmFolder = win:AddFolder("Auto Farm")
+
+farmFolder:AddToggle({ 
+    text = "Auto Collect Money", 
+    flag = "auto_collect", 
+    callback = function(v) 
+        AutoCollectMoney = v 
+    end 
+})
+
+farmFolder:AddSlider({
+    text = "Collect Delay",
+    min = 0.1,
+    max = 5,
+    float = 0.1,
+    type = "slider",
+    callback = function(v)
+        CollectDelay = v
+    end
+})
+
+task.spawn(function()
+    while true do
+        if AutoCollectMoney then
+            collectAllMoney()
+        end
+        task.wait(CollectDelay)
+    end
+end)
+
 farmFolder:AddToggle({ text = "Auto Farm", flag = "auto_farm", callback = function(v) AutoFarm = v end })
 farmFolder:AddToggle({ text = "Auto Return Base", flag = "auto_return", callback = function(v) AutoReturn = v end })
 farmFolder:AddList({ text = "Farm Level", values = TeleportOrder, callback = function(v) SelectedFarm = v end })
@@ -92,6 +144,14 @@ settingsFolder:AddSlider({ text = "FOV", min = 30, max = 120, callback = functio
 -- =====================
 -- LOOPS (AUTO FARM LOGIC)
 -- =====================
+task.spawn(function()
+    while true do
+        if AutoCollectMoney then
+            collectAllMoney()
+        end
+        task.wait(CollectDelay) -- รอตามเวลาที่ปรับใน Slider
+    end
+end)
 
 task.spawn(function()
     while true do
@@ -127,6 +187,6 @@ task.spawn(function()
     end
 end)
 
-win:AddLabel({ text = "Script By : T-chni Hub V.1.7" })
+win:AddLabel({ text = "Script By : T-chni Hub V.2.1" })
 
 library:Init()
