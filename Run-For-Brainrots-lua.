@@ -10,8 +10,8 @@ local VirtualUser = game:GetService("VirtualUser")
 local player = Players.LocalPlayer
 
 -- VARS
-local ZoneOffsets = { Common = 130, Uncommon = 200, Rare = 230, Epic = 270, Legendary = 300, Mythical = 360, Secret = 420, Celestial = 460, Divine = 600 }
-local TeleportOrder = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythical", "Secret", "Celestial", "Divine" }
+local ZoneOffsets = { Common = 130, Uncommon = 200, Rare = 230, Epic = 270, Legendary = 300, Mythical = 360, Secret = 420, Celestial = 460, Divine = 600, Cosmic = 920 }
+local TeleportOrder = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythical", "Secret", "Celestial", "Divine", "Cosmic" }
 
 local AutoReturn = false
 local AutoFarm = false
@@ -130,6 +130,6 @@ task.spawn(function()
     end
 end)
 
-win:AddLabel({ text = "Script By : T-chni Hub V.1.5" })
+win:AddLabel({ text = "Script By : T-chni Hub V.1.7" })
 
 library:Init()
