@@ -1,4 +1,4 @@
--- [[ Tora UI | Run For Brainrots
+-- [[ Tora UI | Run For Brainrots💯 V.2.5 ]]
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/liebertsx/Tora-Library/main/src/librarynew",true))()
 local win = library:CreateWindow("Run For Brainrots💯")
 
@@ -17,9 +17,10 @@ local AutoReturn = false
 local AutoFarm = false
 local AntiAFK = false 
 local AutoCollectMoney = false
-local CollectDelay = 1
+local CollectDelay = 0.1
 local SelectedFarm = "Common"
 local SelectedTeleportZone = "Common"
+local ReturnMode = "Constant" -- ค่าเริ่มต้น
 
 -- =====================
 -- FUNCTIONS (CORE)
@@ -66,13 +67,6 @@ local function teleport(zoneName)
     end
 end
 
-player.Idled:Connect(function()
-    if AntiAFK then
-        VirtualUser:CaptureController()
-        VirtualUser:ClickButton2(Vector2.new())
-    end
-end)
-
 -- =====================
 -- UI FOLDERS
 -- =====================
@@ -80,34 +74,8 @@ end)
 -- [ Folder: Auto Farm ]
 local farmFolder = win:AddFolder("Auto Farm")
 
-farmFolder:AddToggle({ 
-    text = "Auto Collect Money", 
-    flag = "auto_collect", 
-    callback = function(v) 
-        AutoCollectMoney = v 
-    end 
-})
-
-farmFolder:AddSlider({
-    text = "Collect Delay",
-    min = 0.1,
-    max = 5,
-    float = 0.1,
-    type = "slider",
-    callback = function(v)
-        CollectDelay = v
-    end
-})
-
-task.spawn(function()
-    while true do
-        if AutoCollectMoney then
-            collectAllMoney()
-        end
-        task.wait(CollectDelay)
-    end
-end)
-
+farmFolder:AddToggle({ text = "Auto Collect Money", flag = "auto_collect", callback = function(v) AutoCollectMoney = v end })
+farmFolder:AddSlider({ text = "Collect Delay", min = 0.1, max = 5, float = 0.1, type = "slider", callback = function(v) CollectDelay = v end })
 farmFolder:AddToggle({ text = "Auto Farm", flag = "auto_farm", callback = function(v) AutoFarm = v end })
 farmFolder:AddToggle({ text = "Auto Return Base", flag = "auto_return", callback = function(v) AutoReturn = v end })
 farmFolder:AddList({ text = "Farm Level", values = TeleportOrder, callback = function(v) SelectedFarm = v end })
@@ -121,16 +89,16 @@ tpFolder:AddButton({ text = "Teleport to Selected", callback = function() telepo
 -- [ Folder: Settings ]
 local settingsFolder = win:AddFolder("Settings")
 
-settingsFolder:AddToggle({
-    text = "Anti-AFK",
-    flag = "anti_afk",
-    state = false,
+-- เพิ่ม Dropdown เลือกโหมดการกลับฐาน
+settingsFolder:AddList({
+    text = "Mode Auto Return Base🔄",
+    values = {"Constant⭐", "Fast⚡"},
     callback = function(v)
-        AntiAFK = v
-        print("Anti-AFK is now: " .. (v and "Enabled" or "Disabled"))
+        ReturnMode = v
     end
 })
 
+settingsFolder:AddToggle({ text = "Anti-AFK", flag = "anti_afk", callback = function(v) AntiAFK = v end })
 settingsFolder:AddButton({ text = "Rejoin Server", callback = function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, player) end })
 settingsFolder:AddButton({ text = "Server Hop", callback = function()
     local servers = {}
@@ -138,32 +106,40 @@ settingsFolder:AddButton({ text = "Server Hop", callback = function()
     for _, s in pairs(req.data) do if s.playing < s.maxPlayers and s.id ~= game.JobId then table.insert(servers, s.id) end end
     if #servers > 0 then TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], player) end
 end})
-
 settingsFolder:AddSlider({ text = "FOV", min = 30, max = 120, callback = function(v) workspace.CurrentCamera.FieldOfView = v end })
 
 -- =====================
--- LOOPS (AUTO FARM LOGIC)
+-- LOOPS
 -- =====================
+
+-- 1. ลูปเก็บเงิน
 task.spawn(function()
     while true do
-        if AutoCollectMoney then
-            collectAllMoney()
-        end
-        task.wait(CollectDelay) -- รอตามเวลาที่ปรับใน Slider
+        if AutoCollectMoney then collectAllMoney() end
+        task.wait(CollectDelay)
     end
 end)
 
+-- 2. ลูป Auto Return (เลือกตามโหมดที่ตั้งไว้)
 task.spawn(function()
     while true do
         task.wait(0.4)
         if AutoReturn and player.Character and player.Character:FindFirstChild("CarryVisuals") then
-            teleport("Common")
-            task.wait(0.5)
-            teleportBase()
+            if ReturnMode == "Fast" then
+                -- วาร์ปตรงเข้าฐานทันที
+                teleportBase()
+            else
+                -- โหมดคงที่: วาร์ปไป Common ก่อน
+                teleport("Common")
+                task.wait(0.5)
+                teleportBase()
+            end
+            task.wait(0.8)
         end
     end
 end)
 
+-- 3. ลูป Auto Farm
 task.spawn(function()
     while true do
         task.wait(0.6)
@@ -187,6 +163,13 @@ task.spawn(function()
     end
 end)
 
-win:AddLabel({ text = "Script By : T-chni Hub V.2.1" })
+player.Idled:Connect(function()
+    if AntiAFK then
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end
+end)
 
+win:AddLabel({ text = "Script By : T-chni Hub V.2.5" })
 library:Init()
+
