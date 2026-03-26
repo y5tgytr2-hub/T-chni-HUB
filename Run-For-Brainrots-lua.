@@ -20,7 +20,7 @@ local AutoCollectMoney = false
 local CollectDelay = 0.1
 local SelectedFarm = "Common"
 local SelectedTeleportZone = "Common"
-local ReturnMode = "Constant" -- ค่าเริ่มต้น
+local ReturnMode = "Fast" -- ค่าเริ่มต้น
 
 -- =====================
 -- FUNCTIONS (CORE)
@@ -92,7 +92,7 @@ local settingsFolder = win:AddFolder("Settings")
 -- เพิ่ม Dropdown เลือกโหมดการกลับฐาน
 settingsFolder:AddList({
     text = "Mode Auto Return Base🔄",
-    values = {"Constant⭐", "Fast⚡"},
+    values = {"Fast⚡", "Constant⭐"},
     callback = function(v)
         ReturnMode = v
     end
