@@ -1,0 +1,332 @@
+-- [[ T-chni Hub | Run For Brainrots Script V.3.0 ]]
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "T-chni Hub | Run For Brainrots Script V.3.0",
+   Icon = 4483362458,
+   LoadingTitle = "Loading Script System...",
+   LoadingSubtitle = "by T-chni Hub & Gemini AI",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "T-chniHub_Brainrot",
+      FileName = "Config"
+   },
+   KeySystem = false
+})
+
+-- =====================
+-- VARIABLES & SERVICES
+-- =====================
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local VirtualUser = game:GetService("VirtualUser")
+local player = Players.LocalPlayer
+
+local ZoneOffsets = { Common = 130, Uncommon = 200, Rare = 230, Epic = 270, Legendary = 300, Mythical = 360, Secret = 420, Celestial = 460, Divine = 600, Cosmic = 920 }
+local TeleportOrder = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythical", "Secret", "Celestial", "Divine", "Cosmic" }
+
+-- States (Global Variables)
+_G.AutoFarm = false
+_G.AutoCollectMoney = false
+_G.AutoReturn = false
+_G.AntiAFK = false
+_G.CollectDelay = 0.1
+_G.SelectedFarm = "Common"
+_G.SelectedTeleportZone = "Common"
+_G.ReturnMode = "Fast⚡"
+_G.LoopFOV = false 
+_G.FOVValue = 70
+
+-- =====================
+-- CORE FUNCTIONS
+-- =====================
+local function collectAllMoney()
+    local plotName = "Plot_"..player.Name
+    local plot = workspace:FindFirstChild(plotName, true)
+    if plot then
+        for f = 1, 3 do 
+            local floor = plot:FindFirstChild("Floor"..f)
+            if floor and floor:FindFirstChild("Slots") then
+                for s = 1, 10 do
+                    local slot = floor.Slots:FindFirstChild("Slot"..s)
+                    if slot and slot:FindFirstChild("CollectTouch") then
+                        local touchPart = slot.CollectTouch
+                        firetouchinterest(player.Character.HumanoidRootPart, touchPart, 0)
+                        task.wait()
+                        firetouchinterest(player.Character.HumanoidRootPart, touchPart, 1)
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- ฟังก์ชันวาร์ปไป SpeedStand (โหมดเร็ว/Safe Zone)
+local function teleportSpeedStand()
+    local stand = workspace:FindFirstChild("SpeedStand")
+    if stand then
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        local pos = stand:IsA("Model") and stand:GetModelCFrame() or stand.CFrame
+        hrp.CFrame = pos + Vector3.new(0, 7, 0)
+    end
+end
+
+local function teleportBase()
+    local plotName = "Plot_"..player.Name
+    local plot = workspace:FindFirstChild(plotName,true)
+    if plot then
+        local pos = plot:IsA("Model") and plot:GetModelCFrame().Position or plot.Position
+        local char = player.Character or player.CharacterAdded:Wait()
+        char:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(pos + Vector3.new(0,20,0))
+    end
+end
+
+local function teleportZone(zoneName)
+    local zone = workspace:FindFirstChild(zoneName,true)
+    if zone then
+        local pos = zone:IsA("Model") and zone:GetModelCFrame().Position or zone.Position
+        local offset = ZoneOffsets[zoneName] or 130
+        local char = player.Character or player.CharacterAdded:Wait()
+        char:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(pos + Vector3.new(0,20,offset))
+    end
+end
+
+-- =====================
+-- TABS UI
+-- =====================
+
+-- [ TAB: AUTO FARM ]
+local FarmTab = Window:CreateTab("Auto Farm 📜", 4483362458)
+
+FarmTab:CreateToggle({
+   Name = "Auto Farm Brainrots 🌟",
+   CurrentValue = false,
+   Flag = "AutoFarm",
+   Callback = function(Value) _G.AutoFarm = Value end,
+})
+
+FarmTab:CreateDropdown({
+   Name = "Select Farm Zone 💰",
+   Options = TeleportOrder,
+   CurrentOption = {"Common"},
+   MultipleOptions = false,
+   Flag = "FarmZone",
+   Callback = function(Option) _G.SelectedFarm = Option[1] end,
+})
+
+FarmTab:CreateSection("Money Collection 💸")
+
+FarmTab:CreateToggle({
+   Name = "Auto Collect Money 💵",
+   CurrentValue = false,
+   Flag = "AutoCollect",
+   Callback = function(Value) _G.AutoCollectMoney = Value end,
+})
+
+FarmTab:CreateSlider({
+   Name = "Collect Delay ⏰",
+   Range = {0.1, 5},
+   Increment = 0.1,
+   Suffix = "s",
+   CurrentValue = 0.1,
+   Flag = "CollectDelay",
+   Callback = function(Value) _G.CollectDelay = Value end,
+})
+
+-- [ TAB: TELEPORT ]
+local TPTab = Window:CreateTab("Teleport 🌀", 4483362458)
+
+TPTab:CreateToggle({
+   Name = "Auto Return To Base ↩️",
+   CurrentValue = false,
+   Flag = "AutoReturn",
+   Callback = function(Value) _G.AutoReturn = Value end,
+})
+
+TPTab:CreateDropdown({
+   Name = "Return Mode 🔗",
+   Options = {"Fast⚡", "Constant🛡️"},
+   CurrentOption = {"Fast⚡"},
+   Flag = "ReturnMode",
+   Callback = function(Option) _G.ReturnMode = Option[1] end,
+})
+
+TPTab:CreateSection("Zone Teleport 🗺️")
+
+TPTab:CreateButton({
+   Name = "Teleport to My Base 🏠",
+   Callback = function() teleportBase() end,
+})
+
+TPTab:CreateButton({
+   Name = "Teleport To Safe Zone 🛡️",
+   Callback = function() teleportSpeedStand() end,
+})
+
+TPTab:CreateDropdown({
+   Name = "Choose Zone ❓",
+   Options = TeleportOrder,
+   CurrentOption = {"Common"},
+   Flag = "ManualTPZone",
+   Callback = function(Option) _G.SelectedTeleportZone = Option[1] end,
+})
+
+TPTab:CreateButton({
+   Name = "Go to Selected Zone ➡️",
+   Callback = function() teleportZone(_G.SelectedTeleportZone) end,
+})
+
+-- [ TAB: SETTINGS ]
+local SettingsTab = Window:CreateTab("Settings/Other ⚙️", 4483362458)
+
+SettingsTab:CreateSection("Server Management 🌐")
+
+SettingsTab:CreateButton({
+   Name = "Rejoin Server 🔄",
+   Callback = function()
+       TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, player)
+   end,
+})
+
+SettingsTab:CreateButton({
+   Name = "Server Hop ▶️",
+   Callback = function()
+       local servers = {}
+       local success, result = pcall(function()
+           return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Desc&limit=100"))
+       end)
+       
+       if success then
+           for _, s in pairs(result.data) do 
+               if s.playing < s.maxPlayers and s.id ~= game.JobId then 
+                   table.insert(servers, s.id) 
+               end 
+           end
+           if #servers > 0 then 
+               TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], player) 
+           else
+               Rayfield:Notify({Title = "Error", Content = "No other servers found!", Duration = 3})
+           end
+       end
+   end,
+})
+
+SettingsTab:CreateToggle({
+   Name = "Anti-AFK 💤",
+   CurrentValue = false,
+   Flag = "AntiAFK",
+   Callback = function(Value) _G.AntiAFK = Value end,
+})
+
+SettingsTab:CreateSection("Camera Settings 👁️")
+
+SettingsTab:CreateToggle({
+   Name = "Enable Loop FOV 🔄",
+   CurrentValue = false,
+   Flag = "LoopFOV",
+   Callback = function(Value)
+      _G.LoopFOV = Value
+      if not Value then
+         pcall(function() workspace.CurrentCamera.FieldOfView = 70 end)
+      else
+         pcall(function() workspace.CurrentCamera.FieldOfView = _G.FOVValue end)
+      end
+   end,
+})
+
+SettingsTab:CreateSlider({
+   Name = "Adjust FOV Value",
+   Range = {10, 120},
+   Increment = 1,
+   Suffix = "°",
+   CurrentValue = 70,
+   Flag = "FOVValue",
+   Callback = function(Value)
+      _G.FOVValue = Value
+      if _G.LoopFOV then
+         pcall(function() workspace.CurrentCamera.FieldOfView = Value end)
+      end
+   end,
+})
+
+-- =====================
+-- BACKGROUND LOOPS
+-- =====================
+
+-- 1. Money Collection Loop
+task.spawn(function()
+    while true do
+        if _G.AutoCollectMoney then pcall(collectAllMoney) end
+        task.wait(_G.CollectDelay)
+    end
+end)
+
+-- 2. Return Base Loop
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if _G.AutoReturn and player.Character and player.Character:FindFirstChild("CarryVisuals") then
+            if _G.ReturnMode == "Fast⚡" then
+                teleportSpeedStand()
+            else
+                teleportZone("Common")
+                task.wait(0.5)
+                teleportSpeedStand()
+            end
+            task.wait(1)
+        end
+    end
+end)
+
+-- 3. Auto Farm Loop
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if _G.AutoFarm then
+            pcall(function()
+                teleportZone(_G.SelectedFarm)
+                task.wait(1.5)
+                local spawner = workspace:FindFirstChild("ItemSpawners")
+                if spawner and spawner:FindFirstChild(_G.SelectedFarm) then
+                    for _, item in pairs(spawner[_G.SelectedFarm]:GetChildren()) do
+                        if not _G.AutoFarm then break end
+                        local part = item:FindFirstChildWhichIsA("BasePart")
+                        if part and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                            player.Character.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0,3,0)
+                            task.wait(0.3)
+                            local prompt = item:FindFirstChildWhichIsA("ProximityPrompt",true)
+                            if prompt then fireproximityprompt(prompt) task.wait(0.5) end
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- 4. FOV Persistence Loop
+task.spawn(function()
+    while true do
+        if _G.LoopFOV then
+            pcall(function() workspace.CurrentCamera.FieldOfView = _G.FOVValue end)
+        end
+        task.wait(0.01)
+    end
+end)
+
+-- Anti-AFK Handler
+player.Idled:Connect(function()
+    if _G.AntiAFK then
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end
+end)
+
+Rayfield:Notify({
+   Title = "Script Loaded! ✅",
+   Content = "Thank For Use Script 🎉",
+   Duration = 5,
+   Image = 4483362458,
+})
