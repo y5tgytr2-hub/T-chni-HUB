@@ -2,10 +2,10 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "T-chni Hub | Run For Brainrots Script V.3.0",
+   Name = "T-chni Hub | Run For Brainrots Script V.3.0.1",
    Icon = 4483362458,
    LoadingTitle = "Loading Script System...",
-   LoadingSubtitle = "by T-chni Hub & Gemini AI",
+   LoadingSubtitle = "by T-chni Hub",
    ConfigurationSaving = {
       Enabled = true,
       FolderName = "T-chniHub_Brainrot",
@@ -139,7 +139,7 @@ FarmTab:CreateSlider({
 local TPTab = Window:CreateTab("Teleport 🌀", 4483362458)
 
 TPTab:CreateToggle({
-   Name = "Auto Return To Base ↩️",
+   Name = "Auto Return To Safe Zone ↩️",
    CurrentValue = false,
    Flag = "AutoReturn",
    Callback = function(Value) _G.AutoReturn = Value end,
