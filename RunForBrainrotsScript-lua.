@@ -1,8 +1,8 @@
--- [[ T-chni Hub | Run For Brainrots Script V.3.0 ]]
+-- [[ T-chni Hub | Run For Brainrots Script V.3.5 ]]
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "T-chni Hub | Run For Brainrots Script V.3.0.1",
+   Name = "T-chni Hub | Run For Brainrots Script V.3.5",
    Icon = 4483362458,
    LoadingTitle = "Loading Script System...",
    LoadingSubtitle = "by T-chni Hub",
@@ -139,7 +139,7 @@ FarmTab:CreateSlider({
 local TPTab = Window:CreateTab("Teleport 🌀", 4483362458)
 
 TPTab:CreateToggle({
-   Name = "Auto Return To Safe Zone ↩️",
+   Name = "Auto Return To Base ↩️",
    CurrentValue = false,
    Flag = "AutoReturn",
    Callback = function(Value) _G.AutoReturn = Value end,
@@ -180,6 +180,60 @@ TPTab:CreateButton({
 
 -- [ TAB: SETTINGS ]
 local SettingsTab = Window:CreateTab("Settings/Other ⚙️", 4483362458)
+
+SettingsTab:CreateSection("Map Customization 🗺️")
+
+SettingsTab:CreateButton({
+   Name = "There Was No Falling 🛠️",
+   Callback = function()
+       local success, err = pcall(function()
+           -- [[ ส่วนที่ 1: บล็อกลำดับที่ 17 (ยึดตามค่าเดิมของคุณ) ]]
+           local targetBlock = workspace.Map.Folder.Model:GetChildren()[17]
+           
+           if targetBlock and targetBlock:IsA("BasePart") then
+               -- ปรับบล็อกหลัก
+               targetBlock.Size = Vector3.new(300, 15, 2048)
+               targetBlock.CFrame = CFrame.new(2.11, 8, 580)
+               targetBlock.Anchored = true
+               
+               -- 1. โคลนอันที่หนึ่ง
+               local clone1 = targetBlock:Clone()
+               clone1.Size = Vector3.new(300, 15, 2048)
+               clone1.CFrame = CFrame.new(2.11, 8, 2628)
+               clone1.Parent = targetBlock.Parent
+               
+               -- 2. โคลนอันที่สอง
+               local clone2 = targetBlock:Clone()
+               clone2.Size = Vector3.new(300, 15, 2048)
+               clone2.CFrame = CFrame.new(2.11, 8, 4676)
+               clone2.Parent = targetBlock.Parent
+               
+               -- 3. โคลนอันที่สาม
+               local clone3 = targetBlock:Clone()
+               clone3.Size = Vector3.new(300, 15, 2048)
+               clone3.CFrame = CFrame.new(2.11, 8, 6724)
+               clone3.Parent = targetBlock.Parent
+           end
+           
+           -- [[ ส่วนที่ 2: เพิ่มการโคลนบล็อกลำดับที่ 7 ใหม่ ]]
+           local wallBlock = workspace.Map.Folder.Model:GetChildren()[7]
+           
+           if wallBlock and wallBlock:IsA("BasePart") then
+               local wallClone = wallBlock:Clone()
+               wallClone.Size = Vector3.new(20, 64, 2042)
+               wallClone.CFrame = CFrame.new(-91.50, 32, 6560)
+               wallClone.Anchored = true
+               wallClone.Parent = wallBlock.Parent
+           end
+           
+           Rayfield:Notify({Title = "Success", Content = "Map modified and cloned successfully!", Duration = 3})
+       end)
+       
+       if not success then
+           Rayfield:Notify({Title = "Error", Content = "Failed to modify map: "..tostring(err), Duration = 3})
+       end
+   end,
+})
 
 SettingsTab:CreateSection("Server Management 🌐")
 
