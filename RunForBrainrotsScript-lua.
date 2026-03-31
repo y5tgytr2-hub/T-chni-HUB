@@ -139,7 +139,7 @@ FarmTab:CreateSlider({
 local TPTab = Window:CreateTab("Teleport 🌀", 4483362458)
 
 TPTab:CreateToggle({
-   Name = "Auto Return To Base ↩️",
+   Name = "Auto Return To Safe Zone ↩️",
    CurrentValue = false,
    Flag = "AutoReturn",
    Callback = function(Value) _G.AutoReturn = Value end,
@@ -226,11 +226,11 @@ SettingsTab:CreateButton({
                wallClone.Parent = wallBlock.Parent
            end
            
-           Rayfield:Notify({Title = "Success", Content = "Map modified and cloned successfully!", Duration = 3})
+           Rayfield:Notify({Title = "Success 🎉", Content = "Map modified successfully!", Duration = 3})
        end)
        
        if not success then
-           Rayfield:Notify({Title = "Error", Content = "Failed to modify map: "..tostring(err), Duration = 3})
+           Rayfield:Notify({Title = "Error ❓", Content = "Failed to modify map: "..tostring(err), Duration = 3})
        end
    end,
 })
